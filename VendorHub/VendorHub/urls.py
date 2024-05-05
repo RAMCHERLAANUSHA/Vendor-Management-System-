@@ -16,7 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from VendorConnect import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('GET/api/vendors/',views.VendorView.as_view()),
+    path('GET/api/vendors/<int:vendor_id>',views.VendorView.as_view()),
+    path('POST/api/vendors',views.VendorView.as_view()),
+    path('PUT/api/vendors/<int:vendor_id>',views.VendorView.as_view()),
+    path('DELETE/api/vendors/<int:vendor_id>',views.VendorView.as_view()),
+
+    path('GET/api/purchase_orders/',views.PurchaseOrderView.as_view()),
+    path('GET/api/purchase_orders/<int:po_id>',views.PurchaseOrderView.as_view()),
+    path('POST/api/purchase_orders',views.PurchaseOrderView.as_view()),
+    path('PUT/api/purchase_orders/<int:po_id>',views.PurchaseOrderView.as_view()),
+    path('DELETE/api/purchase_orders/<int:po_id>',views.PurchaseOrderView.as_view()),
+
+    path('GET/api/vendors/<int:vendor_id>/performance',views.VendorPerformanceView.as_view()),
+
 ]
