@@ -32,18 +32,17 @@ class VendorView(APIView):
         Returns:
         - Response with vendor data
         """
-         
-        if vendor_id:
-            try:
+        try:
+            if vendor_id:
                 ven = Vendor.objects.get(vendor_code=vendor_id)
                 ven1 = VendorSerializer(ven)
                 return Response(ven1.data)
-            except Vendor.DoesNotExist:
-                return Response({"message": "Vendor not found"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            ven = Vendor.objects.all()
-            ven1 = VendorSerializer(ven, many=True)
-            return Response(ven1.data)
+            else:
+                ven = Vendor.objects.all()
+                ven1 = VendorSerializer(ven, many=True)
+                return Response(ven1.data)
+        except (Vendor.DoesNotExist):
+            return Response({"message": "Vendor not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
 
