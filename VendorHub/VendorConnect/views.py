@@ -1,24 +1,28 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from .models import *
-from .serializers import *
 from rest_framework.views import APIView
-
-# Create your views here.
+from rest_framework import status
+from .models import Vendor
+from .models import PurchaseOrder
+from .serializers import VendorSerializer
+from .serializers import PurchaseOrderSerializer
+from .authentication import Authentication
 
 class VendorView(APIView):
 
     """
     API endpoint for vendor operations.
-
     - GET: Retrieve vendor(s)
     - POST: Create a new vendor
     - PUT: Update an existing vendor
     - DELETE: Delete a vendor
     """
 
-    def get(self, request, vendor_id = None):
+    authentication_classes = [Authentication]
+    # permission_classes = [IsAuthenticated]
 
+    def get(self, request, vendor_id=None):
+         
         """
         Retrieve vendor details.
 
@@ -28,16 +32,19 @@ class VendorView(APIView):
         Returns:
         - Response with vendor data
         """
-
-        if id:
-            ven = Vendor.objects.get(vendor_code = vendor_id)
-            ven1 = VendorSerializer(ven)
-            return Response(ven1.data)
+         
+        if vendor_id:
+            try:
+                ven = Vendor.objects.get(vendor_code=vendor_id)
+                ven1 = VendorSerializer(ven)
+                return Response(ven1.data)
+            except Vendor.DoesNotExist:
+                return Response({"message": "Vendor not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             ven = Vendor.objects.all()
-            ven1 = VendorSerializer(ven, many = True)
+            ven1 = VendorSerializer(ven, many=True)
             return Response(ven1.data)
-        
+
     def post(self, request):
 
         """
@@ -50,11 +57,12 @@ class VendorView(APIView):
         - Response with success message
         """
 
-        ven = VendorSerializer(data = request.data)
+        ven = VendorSerializer(data=request.data)
         if ven.is_valid():
             ven.save()
-        return Response({"message":"data saved"})
-    
+            return Response({"message": "data saved"})
+        return Response(ven.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, vendor_id):
 
         """
@@ -68,12 +76,17 @@ class VendorView(APIView):
         - Response with success message
         """
 
-        ven = Vendor.objects.get(vendor_code = vendor_id)
+        try:
+            ven = Vendor.objects.get(vendor_code=vendor_id)
+        except Vendor.DoesNotExist:
+            return Response({"message": "Vendor not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         ven1 = VendorSerializer(ven, data=request.data)
         if ven1.is_valid():
             ven1.save()
-        return Response({"message":"data updated"})
-    
+            return Response({"message": "data updated"})
+        return Response(ven1.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, vendor_id):
 
         """
@@ -86,22 +99,28 @@ class VendorView(APIView):
         - Response with success message
         """
 
-        ven =Vendor.objects.get(vendor_code = vendor_id)
+        try:
+            ven = Vendor.objects.get(vendor_code=vendor_id)
+        except Vendor.DoesNotExist:
+            return Response({"message": "Vendor not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         ven.delete()
-        return Response({"message":"data deleted"})
-    
+        return Response({"message": "data deleted"})
+
 class PurchaseOrderView(APIView):
 
     """
     API endpoint for purchase order operations.
-
     - GET: Retrieve purchase order(s)
     - POST: Create a new purchase order
     - PUT: Update an existing purchase order
     - DELETE: Delete a purchase order
     """
 
-    def get(self, request, po_id = None):
+    authentication_classes = [Authentication]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request, po_id=None):
 
         """
         Retrieve purchase order details.
@@ -113,15 +132,18 @@ class PurchaseOrderView(APIView):
         - Response with purchase order data
         """
 
-        if id:
-            order = PurchaseOrder.objects.get(po_number = po_id)
-            order1 = PurchaseOrderSerializer(order)
-            return Response(order1.data)
+        if po_id:
+            try:
+                order = PurchaseOrder.objects.get(po_number=po_id)
+                order1 = PurchaseOrderSerializer(order)
+                return Response(order1.data)
+            except PurchaseOrder.DoesNotExist:
+                return Response({"message": "Purchase order not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             order = PurchaseOrder.objects.all()
-            order1 = PurchaseOrderSerializer(order, many = True)
+            order1 = PurchaseOrderSerializer(order, many=True)
             return Response(order1.data)
-        
+
     def post(self, request):
 
         """
@@ -134,11 +156,12 @@ class PurchaseOrderView(APIView):
         - Response with success message
         """
 
-        order = PurchaseOrderSerializer(data = request.data)
+        order = PurchaseOrderSerializer(data=request.data)
         if order.is_valid():
             order.save()
-        return Response({"message":"data saved"})
-    
+            return Response({"message": "data saved"})
+        return Response(order.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, po_id):
 
         """
@@ -152,12 +175,17 @@ class PurchaseOrderView(APIView):
         - Response with success message
         """
 
-        order = PurchaseOrder.objects.get(po_number = po_id)
+        try:
+            order = PurchaseOrder.objects.get(po_number=po_id)
+        except PurchaseOrder.DoesNotExist:
+            return Response({"message": "Purchase order not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         order1 = PurchaseOrderSerializer(order, data=request.data)
         if order1.is_valid():
             order1.save()
-        return Response({"message":"data updated"})
-    
+            return Response({"message": "data updated"})
+        return Response(order1.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, po_id):
 
         """
@@ -170,20 +198,25 @@ class PurchaseOrderView(APIView):
         - Response with success message
         """
 
-        order =PurchaseOrder.objects.get(po_number = po_id)
+        try:
+            order = PurchaseOrder.objects.get(po_number=po_id)
+        except PurchaseOrder.DoesNotExist:
+            return Response({"message": "Purchase order not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         order.delete()
-        return Response({"message":"data deleted"})
-    
+        return Response({"message": "data deleted"})
 
 class VendorPerformanceView(APIView):
 
     """
     API endpoint for vendor performance operations.
-
     - GET: Retrieve vendor performance data
     """
 
-    def get(self, request, po_id = None):
+    authentication_classes = [Authentication]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request, vendor_id=None):
 
         """
         Retrieve vendor performance data.
@@ -195,6 +228,9 @@ class VendorPerformanceView(APIView):
         - Response with vendor performance data
         """
         
-        perform = PurchaseOrder.objects.get(vendor_code = po_id)
-        perform1 = PurchaseOrderSerializer(perform)
-        return Response(perform1.data)
+        try:
+            perform = PurchaseOrder.objects.get(vendor_id = vendor_id)
+            perform1 = PurchaseOrderSerializer(perform)
+            return Response(perform1.data)
+        except PurchaseOrder.DoesNotExist:
+            return Response({"message": "Purchase order not found"}, status=status.HTTP_404_NOT_FOUND)
