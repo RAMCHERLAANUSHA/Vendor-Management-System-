@@ -8,7 +8,6 @@ class Authentication:
 
     
     def authenticate(self, request):
-        import pdb;pdb.set_trace()
         # Get the token from the request headers
         token = request.headers.get('Authorization')
 
